@@ -1,0 +1,61 @@
+{% extends 'login/login_base.html' %}
+{% block content %}
+    <div class="register-box">
+        <div class="register-logo">
+            <a href="/admin"><b>Fitness Center</b></a>
+            <a>Management System</a>
+        </div>
+
+        <div class="register-box-body">
+            <p class="login-box-msg">Register a new membership</p>
+
+            <form action="/register" method="post">
+                {{ form.csrf_token }}
+                {{ form.hidden_tag() }}
+                <div class="form-group has-feedback">
+                    {{ form.username(id="username",class="form-control",placeholder="Username",required=True) }}
+                    <span class="glyphicon glyphicon-user form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
+                    {{ form.email(id="email",class="form-control",placeholder="Email",required=True) }}
+                    <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
+                    {{ form.password(id="password",class="form-control",placeholder="Password",required=True) }}
+                    <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
+                    {{ form.re_password(id="re_password",class="form-control",placeholder="Retype password",required=True) }}
+                    <span class="glyphicon glyphicon-log-in form-control-feedback"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-8">
+                        <div class="checkbox icheck">
+                        </div>
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-xs-4">
+                        {{ form.register(class="btn btn-primary btn-block btn-flat",value="Sign In") }}
+                    </div>
+                    <!-- /.col -->
+                </div>
+            </form>
+
+
+            <div class="social-auth-links text-center">
+
+            </div>
+
+            <a href="/login" class="text-center">I already have a membership</a>
+        </div>
+        {% if m!="" %}
+            <div class="alert alert-danger alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                <h4><i class="icon fa fa-ban"></i> Alert!</h4>
+                {{ m }}
+            </div>
+        {% endif %}
+        <!-- /.form-box -->
+    </div>
+{% endblock %}

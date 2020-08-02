@@ -1,7 +1,6 @@
-from flask_login import UserMixin
-from flask_security import RoleMixin
+from flask_security import UserMixin , RoleMixin
 
-from app import db
+from apps import db
 
 
 class Role(db.Model , RoleMixin):
@@ -21,9 +20,14 @@ class User(db.Model , UserMixin):
     email = db.Column(db.String(255) , unique=True)
     password = db.Column(db.String(255))
     active = db.Column(db.Boolean())
+    role = db.Column(db.Integer , db.ForeignKey('role.id'))
+    role_r = db.relationship("Role" , backref=db.backref('users' , lazy='dynamic'))
 
-    user_role = db.Column(db.Integer() , db.ForeignKey("role.id"))
-    role = db.relationship("Role" , backref=db.backref('role_of_user' , lazy='dynamic'))
+    # def __init__(self , name , email , password , active):
+    #     self.name = name
+    #     self.email = email
+    #     self.password = password
+    #     self.active = active
 
     def __str__(self):
         return self.name
@@ -54,14 +58,8 @@ class Customer(db.Model , UserMixin):
         return '<User %r>' % self.name
 
 
-coach_of_lesson = db.Table('coach_of_lesson' ,
-                           db.Column('coach_id' , db.Integer , db.ForeignKey('coach.id')) ,
-                           db.Column('lesson_id' , db.Integer , db.ForeignKey('lesson.id'))
-                           )
-
-
 class Coach(db.Model):
-    __tablename__ = "coach"
+    # __tablename__ = "coach"
     id = db.Column(db.Integer , primary_key=True)
     name = db.Column(db.String(255))
     sex = db.Column(db.String(255))
@@ -73,23 +71,28 @@ class Coach(db.Model):
     job = db.Column(db.String(255) , nullable=True)
     school = db.Column(db.String(255) , nullable=True)
     otherData = db.Column(db.String(255))
+    lessons = db.relationship('Lesson' , backref="Coach")
 
-    lessons = db.relationship('Lesson' , secondary=coach_of_lesson , lazy='dynamic' ,
-                              backref=db.backref('coaches' , lazy='dynamic'))
+    #
+    # def __init__(self , id , name , sex , sid , nation , political , education , phoneNumber , job , school ,
+    #              otherData):
+    #     self.id = id
+    #     self.name = name
+    #     self.sex = sex
+    #     self.sid = sid
+    #     self.nation = nation
+    #     self.political = political
+    #     self.education = education
+    #     self.phoneNumber = phoneNumber
+    #     self.job = job
+    #     self.school = school
+    #     self.otherData = otherData
 
-    def __init__(self , id , name , sex , sid , nation , political , education , phoneNumber , job , school ,
-                 otherData):
-        self.id = id
-        self.name = name
-        self.sex = sex
-        self.sid = sid
-        self.nation = nation
-        self.political = political
-        self.education = education
-        self.phoneNumber = phoneNumber
-        self.job = job
-        self.school = school
-        self.otherData = otherData
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
 
 
 class Lesson(db.Model):
@@ -100,11 +103,17 @@ class Lesson(db.Model):
     lessonTime = db.Column(db.DateTime)
     room = db.Column(db.String(255))
     cost = db.Column(db.DECIMAL)
+    coach = db.Column(db.Integer , db.ForeignKey('coach.id'))
 
-    def __init__(self , id , lessonData , lessonTime , room , coach , cost):
-        self.id = id
-        self.lessonData = lessonData
-        self.lessonTime = lessonTime
-        self.room = room
-        self.coach = coach
-        self.cost = cost
+    # def __init__(self , id , lessonData , lessonTime , room , coach , cost):
+    #     self.id = id
+    #     self.lessonData = lessonData
+    #     self.lessonTime = lessonTime
+    #     self.room = room
+    #     self.coach = coach
+    #     self.cost = cost
+    def __str__(self):
+        return self.lessonName
+
+    def __unicode__(self):
+        return self.name

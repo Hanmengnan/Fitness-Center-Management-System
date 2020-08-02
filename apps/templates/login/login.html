@@ -1,0 +1,60 @@
+{% extends 'login/login_base.html' %}
+{% block content %}
+    <div class="login-box">
+        <div class="login-logo">
+            <a href="/admin"><b>Fitness Center</b></a>
+            <a>Management System</a>
+        </div>
+        <!-- /.login-logo -->
+        <div class="login-box-body">
+            <p class="login-box-msg">Sign in to start your session</p>
+
+            <form action="/login" method="post">
+                {{ form.csrf_token }}
+                {{ form.hidden_tag() }}
+                <div class="form-group has-feedback">
+                    {#                <input type="email" class="form-control" placeholder="Email">#}
+                    {{ form.username(id="username",class="form-control",placeholder="Username",required=True) }}
+                    <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
+                    {#                <input type="password" class="form-control" placeholder="Password">#}
+                    {{ form.password(id="password",class="form-control",placeholder="Password",required=True) }}
+                    <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-xs-8">
+                        <div class="checkbox icheck">
+                            <label>
+                            </label>
+                        </div>
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-xs-4">
+                        {#                    <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>#}
+                        {{ form.submit(class="btn btn-primary btn-block btn-flat",value="Sign In") }}
+                    </div>
+                    <!-- /.col -->
+                </div>
+            </form>
+
+            <div class="social-auth-links text-center">
+
+            </div>
+            <!-- /.social-auth-links -->
+
+            <a href="/register" class="text-center">Register</a>
+
+        </div>
+        {% if m!="" %}
+            <div class="alert alert-danger alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                <h4><i class="icon fa fa-ban"></i> Alert!</h4>
+                {{ m }}
+            </div>
+        {% endif %}
+        <!-- /.login-box-body -->
+    </div>
+{% endblock %}
