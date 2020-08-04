@@ -1,9 +1,10 @@
-from flask import url_for , redirect , render_template
+from flask import url_for , redirect , render_template , request
 from flask_admin import helpers as admin_helpers
-from flask_security import login_required , login_user , logout_user
+from flask_security import login_required , login_user , logout_user , roles_required
 
 from apps import admin
 from . import web
+import datetime
 
 
 @web.context_processor
@@ -29,6 +30,7 @@ def index():
 from apps.web.forms import *
 from apps.model import User
 from apps import db , user_datastore
+from apps.model import *
 
 
 @web.route('/login' , methods=['POST' , 'GET'])
@@ -36,7 +38,6 @@ def login():
     form = loginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(name=form.username.data).first()
-        print(form.username.data)
         if user is not None:
             if form.password.data == user.password:
                 login_user(user)
@@ -70,3 +71,98 @@ def register():
             return redirect('/login')
         return render_template('login/register.html' , form=form , m="两次输入密码不一致")
     return render_template('login/register.html' , form=form , m="")
+
+
+@web.route("/profile" , methods=['GET'])
+def profile():
+    from flask_security import current_user
+    from apps.model import Customer
+    userid = current_user.id
+    customer = Customer.query.filter_by(id=userid).first()
+    name = customer.name
+    sex = customer.sex
+    hcondition = customer.hcondition
+    address = customer.adress
+    sid = customer.sid
+    phoneNumber = customer.phoneNumber
+    money = customer.money
+
+    return render_template('other/index.html' , **locals() , m="")
+
+
+@web.route("/profile/<action>" , methods=['POST'])
+def profileAction(action):
+    from flask_security import current_user
+
+    userid = current_user.id
+    customer = Customer.query.filter_by(id=userid).first()
+    name = customer.name
+    sex = customer.sex
+    hcondition = customer.hcondition
+    address = customer.adress
+    sid = customer.sid
+    phoneNumber = customer.phoneNumber
+    money = customer.money
+    if action == "transferCard":
+        cid = request.form.get("cardid")
+        uid = request.form.get("userid")
+        old_owner = VipCard.query.filter_by(customer=userid , id=cid).first()
+        aim_customer = Customer.query.filter_by(id=uid).first()
+        if aim_customer and old_owner:
+            VipCard.query.filter_by(customer=userid , id=cid).update({"customer": int(uid)})
+            db.session.commit()
+            return render_template('other/index.html' , **locals() , m="操作成功")
+        else:
+            return render_template('other/index.html' , **locals() , m="操作失败")
+
+    elif action == "leave":
+        dayNum = request.form.get("dayNum")
+        vipcards = VipCard.query.filter_by(customer=userid)
+        for card in vipcards:
+            date = card.overdue_Date + datetime.timedelta(days=int(dayNum))
+            VipCard.query.filter_by(id=card.id).update({"overdue_Date": date})
+        db.session.commit()
+        return render_template('other/index.html' , **locals() , m="操作成功")
+
+    elif action == "buyCard":
+        cardid = request.form.get("cardid")
+        card = VipCard.query.filter_by(id=cardid).first()
+        if card != None:
+            if card.saled == True:
+                if card.customer == userid:
+                    date = card.overdue_Date + datetime.timedelta(days=365)
+                    VipCard.query.filter_by(id=card.id).update({"overdue_Date": date})
+                    Customer.query.filter_by(id=userid).update({"money": customer.money - card.price})
+                    db.session.commit()
+                    return render_template('other/index.html' , **locals() , m="操作成功")
+                else:
+                    return render_template('other/index.html' , **locals() , m="该卡为别人所有，不能购买")
+            else:
+                VipCard.query.filter_by(id=card.id).update({"customer": userid , "saled": True})
+                Customer.query.filter_by(id=userid).update({"money": customer.money - card.price})
+                db.session.commit()
+                return render_template('other/index.html' , **locals() , m="操作成功")
+        else:
+            return render_template('other/index.html' , **locals() , m="卡号错误")
+
+    elif action == "buyLesson":
+        cardid = request.form.get("cardid")
+        lessonid = request.form.get("lessonid")
+
+        customer = Customer.query.filter_by(id=userid).first()
+        card = VipCard.query.filter_by(id=cardid).first()
+        lesson = Lesson.query.filter_by(id=lessonid).first()
+        if card == None or card.customer != userid:
+            return render_template('other/index.html' , **locals() , m="卡号错误")
+        elif lesson == None:
+            return render_template('other/index.html' , **locals() , m="课程号错误")
+        else:
+            r = (customer.money) - (lesson.cost * card.discount)
+            if r < 0:
+                return render_template('other/index.html' , **locals() , m="金额不足")
+            else:
+                Customer.query.filter_by(id=userid).update({"money": r})
+                db.session.commit()
+                return render_template('other/index.html' , **locals() , m="操作成功")
+    else:
+        return render_template('other/index.html' , **locals() , m="非法操作")

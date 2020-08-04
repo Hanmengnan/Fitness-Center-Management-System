@@ -1,10 +1,581 @@
+{% import 'admin/mylayout.html' as layout with context -%}
+{% import 'admin/static.html' as admin_static with context %}
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <script>
+
+    </script>
+    <title>
+
+        {% block title %}{% if admin_view.category %}{{ admin_view.category }} - {% endif %}{{ admin_view.name }} -
+            {{ admin_view.admin.name }}{% endblock title %}</title>
+
+    {% block head_meta %}
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Flask-Admin dashboard login template">
+        <meta name="author" content="Jonathan Ars">
+    {% endblock head_meta %}
+
+    {% block head_css %}
+        <!-- Bootstrap 3.3.6 -->
+        <link href="{{ url_for('static',filename='css/bootstrap.min.css') }}" rel="stylesheet">
+        </link>
+        <!-- Font Awesome -->
+        <link rel="stylesheet"
+              href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <!-- Ionicons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+        <!-- Theme style -->
+        <link href="{{ url_for('static',filename='css/AdminLTE.min.css') }}" rel="stylesheet">
+        </link>
+        <!-- AdminLTE Skins. Choose a skin from the css/skins folder instead of downloading all of them to reduce the load. -->
+        <link href="{{ url_for('static',filename='css/skins/_all-skins.min.css') }}" rel="stylesheet">
+        <!-- iCheck -->
+        <link href="{{ url_for('static',filename='plugins/iCheck/flat/blue.css') }}" rel="stylesheet">
+        </link>
+        <!-- Morris chart -->
+        <link href="{{ url_for('static',filename='plugins/morris/morris.css') }}" rel="stylesheet">
+        </link>
+        <!-- jvectormap -->
+        <link href="{{ url_for('static',filename='plugins/jvectormap/jquery-jvectormap-1.2.2.css') }}"
+              rel="stylesheet">
+        </link>
+        <!-- Date Picker -->
+        <link href="{{ url_for('static',filename='plugins/datepicker/datepicker3.css') }}" rel="stylesheet">
+        </link>
+        <!-- Daterange picker -->
+        <link href="{{ url_for('static',filename='plugins/daterangepicker/daterangepicker.css') }}"
+              rel="stylesheet">
+        </link>
+        <!-- bootstrap wysihtml5 - text editor -->
+        <link href="{{ url_for('static',filename='plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css') }}"
+              rel="stylesheet">
+        </link>
+        <!-- Flask-admin admin styles -->
+        <link href="{{ admin_static.url(filename='admin/css/bootstrap3/admin.css', v='1.1.1') }}" rel="stylesheet">
+        {% if admin_view.extra_css %}
+            {% for css_url in admin_view.extra_css %}
+                <link href="{{ css_url }}" rel="stylesheet">
+            {% endfor %}
+        {% endif %}
+    {% endblock head_css %}
+
+    {% block head %}
+    {% endblock head %}
+
+    {% block head_tail %}
+    {% endblock head_tail %}
+
+
+    <style>
+        .example-modal .modal {
+            position: relative;
+            top: auto;
+            bottom: auto;
+            right: auto;
+            left: auto;
+            display: block;
+            z-index: 1;
+        }
+
+        .example-modal .modal {
+            background: transparent !important;
+        }
+    </style>
+
+
 </head>
-<body>
+
+<body class="hold-transition skin-blue sidebar-mini">
+
+{% block page_body %}
+    <!-- TOP NAVBAR -->
+    <div class="wrapper">
+        <header class="main-header">
+            <!-- Logo -->
+            {% block brand %}
+                <a href="{{ admin_view.admin.url }}" class="logo">
+                    <!-- mini logo for sidebar mini 50x50 pixels -->
+                    <span class="logo-mini"><b>MS</b></span>
+                    <!-- logo for regular state and mobile devices -->
+                    <span class="logo-lg"><b>{{ admin_view.admin.name }}</b></span>
+                </a>
+            {% endblock brand %}
+
+            <!-- Header Navbar: style can be found in header.less -->
+            <nav class="navbar navbar-static-top">
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <!-- Notifications: style can be found in dropdown.less -->
+                        <li class="dropdown notifications-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-bell-o"></i>
+                                <span class="label label-warning">2</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li class="header">You have notifications</li>
+                                <li>
+                                    <!-- inner menu: contains the actual data -->
+                                    <ul class="menu">
+                                        <li>
+                                            <a href="#">
+                                                <i class="fa fa-users text-aqua"></i> 5 new members joined today
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#">
+                                                <i class="fa fa-warning text-yellow"></i> Very long description here
+                                                that may not fit into the
+                                                page and may cause design problems
+                                            </a>
+                                        </li>
+
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+
+
+                        <li>
+                        <li class="dropdown user user-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-user-circle" style="color: white; font-size: 1.4em;"></i>
+                                <span class="hidden-xs">
+                                    {% if current_user.name %}
+                                        {{ current_user.name }}
+                                    {% else %}
+                                        {{ current_user.email }}
+                                    {% endif %}
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <!-- User image -->
+                                <li class="user-header">
+                                    <i class="fa fa-user-circle" style="color: white; font-size: 7em;"></i>
+                                    <p>
+                                        {% if current_user.name %}
+                                            {{ current_user.name }}
+                                        {% else %}
+                                            {{ current_user.email }}
+                                        {% endif %}
+                                    </p>
+                                </li>
+
+                                <!-- Menu Footer-->
+                                <li class="user-footer">
+                                    <div class="pull-left">
+                                        <a href="{{ url_for('web.profile') }}"
+                                           class="btn btn-default btn-flat">Profile</a>
+                                    </div>
+                                    <div class="pull-right">
+                                        <a href="{{ url_for('web.logout') }}" class="btn btn-default btn-flat">Sign
+                                            out</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+
+                    </ul>
+
+                    {% block menu_links %}
+                        <ul class="nav navbar-nav navbar-right">
+                            {{ layout.menu_links() }}
+                        </ul>
+                    {% endblock %}
+
+                </div>
+            </nav>
+        </header>
+        <!-- / TOP NAVBAR -->
+
+        <!-- LEFT MENU -->
+        <aside class="main-sidebar">
+            <!-- sidebar: style can be found in sidebar.less -->
+            <section class="sidebar">
+                <!-- Sidebar user panel -->
+                <div class="user-panel">
+                    <div class="pull-left image">
+                        <i class="fa fa-user-circle" style="color: white; font-size: 2.5em;"></i>
+                    </div>
+                    <div class="pull-left info">
+                        <p>
+                            {{ current_user.name }}
+                        </p>
+                        <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+                    </div>
+                </div>
+                <!-- search form -->
+                <form action="#" method="get" class="sidebar-form">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Search...">
+
+                        <span class="input-group-btn">
+                            <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i
+                                    class="fa fa-search"></i>
+                            </button>
+                        </span>
+                    </div>
+                </form>
+                <!-- /.search form -->
+                <!-- sidebar menu: : style can be found in sidebar.less -->
+                <ul class="sidebar-menu">
+                    <li class="header">MAIN NAVIGATION</li>
+                    {% block main_menu %}
+                        {{ layout.menu() }}
+                    {% endblock %}
+                </ul>
+            </section>
+            <!-- /.sidebar -->
+        </aside>
+
+        <!-- Content Wrapper. Contains page content color white-->
+        <div class="content-wrapper">
+
+            {% if m!="" %}
+                <div class="alert alert-warning alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <h4><i class="icon fa fa-warning"></i> {{ m }}</h4>
+                </div>
+            {% endif %}
+            <!-- Main content -->
+            <section class="content">
+
+                <div class="row">
+                    <div class="col-md-3">
+
+                        <!-- About Me Box -->
+                        <div class="box box-primary">
+                            <div class="box-header with-border">
+                                <h3 class="profile-username text-center">{{ name }}</h3>
+
+                            </div>
+                            <!-- /.box-header -->
+                            <div class="box-body">
+                                <strong><i class="fa  fa-male margin-r-5 "></i> Sex</strong>
+
+                                <p class="text-muted">
+                                    <span class="label label-success">{{ sex }}</span>
+                                </p>
+
+                                <hr>
+
+                                <strong><i class="fa fa-map-marker margin-r-5"></i> Location</strong>
+                                <p class="text-muted">
+                                    <span class="label label-info">{{ address }}</span>
+                                </p>
+                                <hr>
+
+
+                                <strong><i class="fa   fa-heartbeat margin-r-5"></i> Health Condition</strong>
+
+                                <p class="text-muted">
+                                    <span class="label label-primary">{{ hcondition }}</span>
+                                </p>
+
+                                <hr>
+
+
+                                <strong><i class="fa  fa-male margin-r-5"></i>Self ID</strong>
+
+                                <p class="text-muted">
+                                    <span class="label label-danger">{{ sid }}</span>
+                                </p>
+
+                                <hr>
+
+                                <strong><i class="fa  fa-phone margin-r-5"></i>Phone Number</strong>
+
+                                <p class="text-muted">
+                                    <span class="label label-success">{{ phoneNumber }}</span>
+                                </p>
+
+                                <hr>
+
+                                <strong><i class="fa  fa-money margin-r-5"></i>Money</strong>
+
+                                <p class="text-muted">
+                                    <span class="label label-warning">{{ money }}</span>
+                                </p>
+                            </div>
+                            <!-- /.box-body -->
+                        </div>
+                        <!-- /.box -->
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-md-9">
+                        <div class="nav-tabs-custom">
+
+                            <div class="tab-content">
+
+                                <div class="tab-pane active" id="timeline">
+                                    <!-- The timeline -->
+                                    <ul class="timeline timeline-inverse">
+                                        <!-- /.timeline-label -->
+                                        <!-- timeline item -->
+                                        <li>
+                                            <i class="fa fa-user bg-aqua"></i>
+
+                                            <div class="timeline-item">
+                                                <h3 class="timeline-header"><a href="#">转卡</a> Transfer of membership
+                                                    card</h3>
+
+                                                <div class="timeline-body">
+                                                    请输入转卡对象的会员号与转让卡号，转卡后该卡将从您的会员卡列表中消失，您不能使用该卡消费。
+                                                </div>
+                                                <form method="post" action="/profile/transferCard" name="transferCard ">
+                                                    <div class="input-group margin">
+
+                                                        <!-- /btn-group -->
+                                                        <div class="col-xs-6">
+                                                            <input name="cardid" type="text" class="form-control"
+                                                                   placeholder="卡号">
+                                                        </div>
+                                                        <div class="col-xs-6">
+                                                            <input name="userid" type="text" class="form-control"
+                                                                   placeholder="会员号">
+                                                        </div>
+                                                        <div class="input-group-btn">
+                                                            <button type="submit" class="btn btn-info">Action</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </li>
+                                        <!-- END timeline item -->
+                                        <!-- timeline item -->
+                                        <li>
+                                            <i class="fa  fa-calendar bg-blue"></i>
+
+                                            <div class="timeline-item">
+                                                <h3 class="timeline-header"><a href="#">请假</a> Leave
+                                                </h3>
+
+                                                <div class="timeline-body">
+                                                    请输入您想请假的天数，系统会自动为您所有的会员卡进行时间上的延期。但请注意：在这段时间内您不能进行消费！
+                                                </div>
+
+                                                <form method="post" action="/profile/leave" name="leave ">
+                                                    <div class="input-group margin">
+                                                        <!-- /btn-group -->
+                                                        <div class="form-group">
+                                                            <select name="dayNum" class="form-control"
+                                                                    style="width: 100%;">
+                                                                <option selected="selected">1</option>
+                                                                <option>2</option>
+                                                                <option disabled="disabled">3</option>
+                                                                <option>5</option>
+                                                                <option>10</option>
+                                                                <option>30</option>
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="input-group-btn">
+                                                            <button type="submit" class="btn btn-danger">Action</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </li>
+                                        <!-- END timeline item -->
+                                        <!-- timeline item -->
+                                        <li>
+                                            <i class="fa  fa-cny bg-yellow"></i>
+
+                                            <div class="timeline-item">
+                                                <h3 class="timeline-header"><a href="#">充值</a>
+                                                    Recharge
+                                                </h3>
+
+                                                <div class="timeline-body">
+                                                    请输入要充值的会员卡号，若该卡尚未属于您则自动为您购买！
+                                                </div>
+                                                <form method="post" action="/profile/buyCard" name="buyCard">
+                                                    <div class="input-group margin">
+                                                        <!-- /btn-group -->
+                                                        <input name="cardid" type="text" class="form-control">
+                                                        <div class="input-group-btn">
+                                                            <button type="submit" class="btn btn-warning">Action
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </li>
+                                        <!-- END timeline item -->
+                                        <li>
+                                            <i class="fa   fa-shopping-cart bg-yellow"></i>
+
+                                            <div class="timeline-item">
+
+
+                                                <h3 class="timeline-header"><a href="#">购买</a>
+                                                    Purchase Courses
+                                                </h3>
+
+                                                <div class="timeline-body">
+                                                    请输入要购买的课程号，系统会将您添加至课程学员列表中，购买时自动使用折扣最低的会员卡！
+                                                </div>
+                                                <form method="post" action="/profile/buyLesson" name="buyLesson">
+                                                    <div class="input-group margin">
+                                                        <!-- /btn-group -->
+                                                        <div class="col-xs-6">
+                                                            <input name="cardid" type="text" class="form-control"
+                                                                   placeholder="卡号">
+                                                        </div>
+                                                        <div class="col-xs-6">
+                                                            <input name="lessonid" type="text" class="form-control"
+                                                                   placeholder="课程号">
+                                                        </div>
+                                                        <div class="input-group-btn">
+                                                            <button type="submit" class="btn btn-warning">Action
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                            </div>
+                            <!-- /.tab-content -->
+                        </div>
+                        <!-- /.nav-tabs-custom -->
+                    </div>
+                    <!-- /.col -->
+                </div>
+                <!-- /.row -->
+
+            </section>
+
+        </div>
+    </div>
+{% endblock page_body %}
+
+{% block tail_js %}
+    <!-- jQuery 2.2.3 -->
+    <script src="{{ url_for('static',filename='plugins/jQuery/jquery-2.2.3.min.js') }}"></script>
+    <!-- jQuery UI 1.11.4 -->
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+    <!-- Bootstrap 3.3.6 -->
+    <script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ admin_static.url(filename='vendor/select2/select2.min.js', v='3.5.2') }}"
+            type="text/javascript"></script>
+    <!-- Select2 -->
+    <script src="{{ url_for('static',filename='plugins/select2/select2.full.min.js') }}"></script>
+    <!-- InputMask -->
+    <script src="{{ url_for('static',filename='plugins/input-mask/jquery.inputmask.js') }}"></script>
+    <script src="{{ url_for('static',filename='plugins/input-mask/jquery.inputmask.date.extensions.js') }}"></script>
+    <script src="{{ url_for('static',filename='plugins/input-mask/jquery.inputmask.extensions.js') }}"></script>
+    <!-- date-range-picker -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js"></script>
+    <script src="{{ url_for('static',filename='plugins/daterangepicker/daterangepicker.js') }}"></script>
+    <!-- bootstrap datepicker -->
+    <script src="{{ url_for('static',filename='plugins/datepicker/bootstrap-datepicker.js') }}"></script>
+
+
+    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+    <script>
+        $.widget.bridge('uibutton', $.ui.button);
+    </script>
+
+
+
+
+
+    {% if admin_view.extra_js %}
+        {% for js_url in admin_view.extra_js %}
+            <script src="{{ js_url }}" type="text/javascript"></script>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Morris.js charts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+    <script src="{{ url_for('static',filename='plugins/morris/morris.min.js') }}"></script>
+    <!-- Sparkline -->
+    <script src="{{ url_for('static',filename='plugins/sparkline/jquery.sparkline.min.js') }}"></script>
+    <!-- jvectormap -->
+    <script src="{{ url_for('static',filename='plugins/jvectormap/jquery-jvectormap-1.2.2.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='plugins/jvectormap/jquery-jvectormap-world-mill-en.js') }}"></script>
+    <!-- jQuery Knob Chart -->
+    <script src="{{ url_for('static',filename='plugins/knob/jquery.knob.js') }}"></script>
+    <!-- Bootstrap WYSIHTML5 -->
+    <script src="{{ url_for('static',filename='plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js') }}"></script>
+    <!-- Slimscroll -->
+    <script src="{{ url_for('static',filename='plugins/slimScroll/jquery.slimscroll.min.js') }}"></script>
+    <!-- FastClick -->
+    <script src="{{ url_for('static',filename='plugins/fastclick/fastclick.js') }}"></script>
+    <!-- AdminLTE App -->
+    <script src="{{ url_for('static',filename='js/appmin2.js') }}"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="{{ url_for('static',filename='js/demo.js') }}"></script>
+
+
+
+    <script>
+        $(function () {
+            //Initialize Select2 Elements
+            $(".select2").select2();
+
+            //Datemask dd/mm/yyyy
+            $("#datemask").inputmask("dd/mm/yyyy", {"placeholder": "dd/mm/yyyy"});
+            //Datemask2 mm/dd/yyyy
+            $("#datemask2").inputmask("mm/dd/yyyy", {"placeholder": "mm/dd/yyyy"});
+            //Money Euro
+            $("[data-mask]").inputmask();
+
+            //Date range picker
+            $('#reservation').daterangepicker();
+            //Date range picker with time picker
+            $('#reservationtime').daterangepicker({
+                timePicker: true,
+                timePickerIncrement: 30,
+                format: 'MM/DD/YYYY h:mm A'
+            });
+            //Date range as a button
+            $('#daterange-btn').daterangepicker(
+                {
+                    ranges: {
+                        '1 Day': [moment(), moment()],
+                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                        'This Month': [moment().startOf('month'), moment().endOf('month')],
+                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                    },
+                    startDate: moment().subtract(29, 'days'),
+                    endDate: moment()
+                },
+                function (start, end) {
+                    $('#daterange-btn span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                }
+            );
+
+            //Date picker
+            $('#datepicker').datepicker({
+                autoclose: true
+            });
+
+        });
+    </script>
+
+
+
+    {% if admin_view.name=="Home" %}
+        <script src="{{ url_for('static',filename='js/pages/dashboard.js') }}"></script>
+    {% endif %}
+
+{% endblock tail_js %}
+
+{% block tail %}
+{% endblock tail %}
+
 
 </body>
+
 </html>

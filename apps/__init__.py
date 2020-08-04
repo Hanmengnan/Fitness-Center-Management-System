@@ -25,6 +25,8 @@ app.register_blueprint(web)
 
 from apps.modelview import *
 
-admin.add_view(CustomerView(Customer , db.session))
+admin.add_view(LessonView(Lesson , db.session ))
+admin.add_view(VipCardView(VipCard , db.session))
 admin.add_view(CoachView(Coach , db.session))
-admin.add_view(LessonView(Lesson , db.session))
+admin.add_view(CustomerView(Customer , db.session))
+admin.add_view(UserView(User , db.session))

@@ -2,6 +2,10 @@ from flask_security import UserMixin , RoleMixin
 
 from apps import db
 
+roles_users = db.Table('roles_users' ,
+                       db.Column('user_id' , db.Integer() , db.ForeignKey('user.id')) ,
+                       db.Column('role_id' , db.Integer() , db.ForeignKey('role.id')))
+
 
 class Role(db.Model , RoleMixin):
     __tablename__ = 'role'
@@ -12,6 +16,9 @@ class Role(db.Model , RoleMixin):
     def __str__(self):
         return self.name
 
+    def __unicode__(self):
+        return self.name
+
 
 class User(db.Model , UserMixin):
     __tablename__ = 'user'
@@ -20,20 +27,17 @@ class User(db.Model , UserMixin):
     email = db.Column(db.String(255) , unique=True)
     password = db.Column(db.String(255))
     active = db.Column(db.Boolean())
-    role = db.Column(db.Integer , db.ForeignKey('role.id'))
-    role_r = db.relationship("Role" , backref=db.backref('users' , lazy='dynamic'))
-
-    # def __init__(self , name , email , password , active):
-    #     self.name = name
-    #     self.email = email
-    #     self.password = password
-    #     self.active = active
+    roles = db.relationship('Role' , secondary=roles_users ,
+                            backref=db.backref('users' , lazy='dynamic'))
 
     def __str__(self):
         return self.name
 
+    def __unicode__(self):
+        return self.name
 
-class Customer(db.Model , UserMixin):
+
+class Customer(db.Model):
     __tablename__ = 'customer'
     id = db.Column(db.Integer , primary_key=True)
     name = db.Column(db.String(225) , unique=True)
@@ -43,23 +47,34 @@ class Customer(db.Model , UserMixin):
     sid = db.Column(db.String(255) , unique=True)
     phoneNumber = db.Column(db.String(255) , unique=True)
     time = db.Column(db.DateTime)
+    money = db.Column(db.DECIMAL)
+    cards = db.relationship("VipCard" , backref='customers')
 
-    def __init__(self , id , name , sex , hcondition , adress , sid , phoneNumber , time):
-        self.id = id
-        self.name = name
-        self.sex = sex
-        self.hcondition = hcondition
-        self.adress = adress
-        self.sid = sid
-        self.phoneNumber = phoneNumber
-        self.time = time
+    def __unicode__(self):
+        return self.name
 
-    def __repr__(self):
-        return '<User %r>' % self.name
+    def __str__(self):
+        return self.name
+
+
+class VipCard(db.Model):
+    id = db.Column(db.Integer , primary_key=True)
+    name = db.Column(db.String(255) , unique=True)
+    available_Times = db.Column(db.Integer)
+    overdue_Date = db.Column(db.DateTime)
+    price = db.Column(db.Integer)
+    discount = db.Column(db.DECIMAL(10 , 2))
+    saled = db.Column(db.Boolean)
+    customer = db.Column(db.Integer , db.ForeignKey('customer.id'))
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
 
 
 class Coach(db.Model):
-    # __tablename__ = "coach"
     id = db.Column(db.Integer , primary_key=True)
     name = db.Column(db.String(255))
     sex = db.Column(db.String(255))
@@ -72,21 +87,6 @@ class Coach(db.Model):
     school = db.Column(db.String(255) , nullable=True)
     otherData = db.Column(db.String(255))
     lessons = db.relationship('Lesson' , backref="Coach")
-
-    #
-    # def __init__(self , id , name , sex , sid , nation , political , education , phoneNumber , job , school ,
-    #              otherData):
-    #     self.id = id
-    #     self.name = name
-    #     self.sex = sex
-    #     self.sid = sid
-    #     self.nation = nation
-    #     self.political = political
-    #     self.education = education
-    #     self.phoneNumber = phoneNumber
-    #     self.job = job
-    #     self.school = school
-    #     self.otherData = otherData
 
     def __str__(self):
         return self.name
@@ -105,15 +105,8 @@ class Lesson(db.Model):
     cost = db.Column(db.DECIMAL)
     coach = db.Column(db.Integer , db.ForeignKey('coach.id'))
 
-    # def __init__(self , id , lessonData , lessonTime , room , coach , cost):
-    #     self.id = id
-    #     self.lessonData = lessonData
-    #     self.lessonTime = lessonTime
-    #     self.room = room
-    #     self.coach = coach
-    #     self.cost = cost
     def __str__(self):
         return self.lessonName
 
     def __unicode__(self):
-        return self.name
+        return self.lessonName
