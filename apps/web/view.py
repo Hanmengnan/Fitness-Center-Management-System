@@ -128,20 +128,23 @@ def profileAction(action):
         cardid = request.form.get("cardid")
         card = VipCard.query.filter_by(id=cardid).first()
         if card != None:
-            if card.saled == True:
-                if card.customer == userid:
-                    date = card.overdue_Date + datetime.timedelta(days=365)
-                    VipCard.query.filter_by(id=card.id).update({"overdue_Date": date})
+            if customer.money >= card.price:
+                if card.saled == True:
+                    if card.customer == userid:
+                        date = card.overdue_Date + datetime.timedelta(days=365)
+                        VipCard.query.filter_by(id=card.id).update({"overdue_Date": date})
+                        Customer.query.filter_by(id=userid).update({"money": customer.money - card.price})
+                        db.session.commit()
+                        return render_template('other/index.html' , **locals() , m="操作成功")
+                    else:
+                        return render_template('other/index.html' , **locals() , m="该卡为别人所有，不能购买")
+                else:
+                    VipCard.query.filter_by(id=card.id).update({"customer": userid , "saled": True})
                     Customer.query.filter_by(id=userid).update({"money": customer.money - card.price})
                     db.session.commit()
                     return render_template('other/index.html' , **locals() , m="操作成功")
-                else:
-                    return render_template('other/index.html' , **locals() , m="该卡为别人所有，不能购买")
             else:
-                VipCard.query.filter_by(id=card.id).update({"customer": userid , "saled": True})
-                Customer.query.filter_by(id=userid).update({"money": customer.money - card.price})
-                db.session.commit()
-                return render_template('other/index.html' , **locals() , m="操作成功")
+                return render_template('other/index.html' , **locals() , m="金额不足")
         else:
             return render_template('other/index.html' , **locals() , m="卡号错误")
 
@@ -152,6 +155,14 @@ def profileAction(action):
         customer = Customer.query.filter_by(id=userid).first()
         card = VipCard.query.filter_by(id=cardid).first()
         lesson = Lesson.query.filter_by(id=lessonid).first()
+
+        leave = Leave.query.filter_by(id=userid).first()
+        if leave != None:
+            if datetime.datetime.now() > leave.endtime:
+                leave = Leave.query.filter_by(id=userid).delete()
+            else:
+                return render_template('other/index.html' , **locals() , m="请假期间不能消费 ")
+
         if card == None or card.customer != userid:
             return render_template('other/index.html' , **locals() , m="卡号错误")
         elif lesson == None:
@@ -166,3 +177,44 @@ def profileAction(action):
                 return render_template('other/index.html' , **locals() , m="操作成功")
     else:
         return render_template('other/index.html' , **locals() , m="非法操作")
+
+
+@web.route("/advanced/lesson" , methods=['GET' , 'POST'])
+def advancedLesson():
+    if request.method == "GET":
+        return render_template('/other/lesson.html' , m="" , lessonList=[])
+    else:
+        betime = request.form.get("betime").split(" - ")
+        start = datetime.datetime.strptime(betime[0] , "%m/%d/%Y")
+        end = datetime.datetime.strptime(betime[1] , "%m/%d/%Y")
+        Lessons = Lesson.query.filter(Lesson.lessonTime <= end).filter(Lesson.lessonTime >= start).all()
+        LessonList = []
+        for i in Lessons:
+            LessonDict = {}
+            LessonDict["lessonName"] = i.lessonName
+            LessonDict["LessonData"] = i.lessonData
+            LessonDict["lessonTime"] = i.lessonTime.strftime("%Y-%m-%d")
+            LessonDict["lessonRoom"] = i.room
+            LessonDict["lessonPrice"] = i.cost
+            LessonList.append(LessonDict)
+        return render_template('/other/lesson.html' , m="" , lessonList=LessonList)
+
+
+@web.route("/advanced/consuming" , methods=['GET' , 'POST'])
+def advancedConsuming():
+    if request.method == "GET":
+        return render_template('/other/consuming.html' , m="" , lessonList=[])
+    else:
+        betime = request.form.get("betime").split(" - ")
+        start = datetime.datetime.strptime(betime[0] , "%m/%d/%Y")
+        end = datetime.datetime.strptime(betime[1] , "%m/%d/%Y")
+        Consumings = Consuming.query.filter(Consuming.time <= end).filter(Consuming.time >= start).all()
+        ConsumingList = []
+        for i in Consumings:
+            ConsumingDict = {}
+            ConsumingDict["customerid"] = i.customerid
+            ConsumingDict["goodstype"] = "会员卡" if i.goodstype == "1" else "课程"
+            ConsumingDict["time"] = i.time.strftime("%Y-%m-%d")
+            ConsumingDict["goodsid"] = i.goodsid
+            ConsumingList.append(ConsumingDict)
+        return render_template('/other/consuming.html' , m="" , lessonList=ConsumingList)

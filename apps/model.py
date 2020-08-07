@@ -37,6 +37,11 @@ class User(db.Model , UserMixin):
         return self.name
 
 
+lessons_of_customer = db.Table('lessons_of_customer' ,
+                               db.Column('lesson_id' , db.Integer() , db.ForeignKey('lesson.id')) ,
+                               db.Column('customer_id' , db.Integer() , db.ForeignKey('customer.id')))
+
+
 class Customer(db.Model):
     __tablename__ = 'customer'
     id = db.Column(db.Integer , primary_key=True)
@@ -49,6 +54,8 @@ class Customer(db.Model):
     time = db.Column(db.DateTime)
     money = db.Column(db.DECIMAL)
     cards = db.relationship("VipCard" , backref='customers')
+    lessons = db.relationship('Lesson' , secondary=lessons_of_customer ,
+                              backref=db.backref('customers' , lazy='dynamic'))
 
     def __unicode__(self):
         return self.name
@@ -110,3 +117,18 @@ class Lesson(db.Model):
 
     def __unicode__(self):
         return self.lessonName
+
+
+class Consuming(db.Model):
+    id = db.Column(db.Integer , primary_key=True)
+    customerid = db.Column(db.Integer , db.ForeignKey('customer.id'))
+    goodstype = db.Column(db.String(255))
+    goodsid = db.Column(db.Integer)
+    time = db.Column(db.DateTime)
+
+
+class Leave(db.Model):
+    id = db.Column(db.Integer , primary_key=True)
+    customerid = db.Column(db.Integer , db.ForeignKey('customer.id'))
+    starttime = db.Column(db.DateTime)
+    endtime = db.Column(db.DateTime)

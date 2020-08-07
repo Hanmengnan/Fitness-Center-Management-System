@@ -1,8 +1,6 @@
-from flask_admin.contrib.sqla import ModelView
-from flask_admin.model import BaseModelView
-from flask_security import current_user , roles_required
-
 from flask import redirect , url_for , render_template , request
+from flask_admin.contrib.sqla import ModelView
+from flask_security import current_user
 
 
 class MyBaseModelView(ModelView):
@@ -25,6 +23,7 @@ class MyBaseModelView(ModelView):
             self.edit_modal = False
             self.create_modal = False
             self.details_modal = False
+            self.can_create = False
             self.can_edit = False
             self.can_export = False
             self.can_delete = False
@@ -39,18 +38,18 @@ class AdminView(ModelView):
     can_set_page_size = True
     can_view_details = True
     page_size = 10
+    details_modal = True
 
     def is_accessible(self):
         from apps import user_datastore
         admin = user_datastore.find_role("admin")
         if current_user.has_role(admin):
             if current_user.has_role(admin):
-                self.edit_modal = True
-                self.create_modal = True
-                self.details_modal = True
                 self.can_edit = True
                 self.can_export = True
                 self.can_delete = True
+                self.edit_modal = True
+                self.create_modal = True
         else:
             return False
         return current_user.is_authenticated

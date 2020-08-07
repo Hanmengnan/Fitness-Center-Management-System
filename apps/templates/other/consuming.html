@@ -3,9 +3,7 @@
 <!DOCTYPE html>
 <html>
 
-
 <head>
-
     <script>
         {% if current_user.is_authenticated %}
             console.log({{ current_user.name }})
@@ -61,7 +59,6 @@
         <link href="{{ url_for('static',filename='plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css') }}"
               rel="stylesheet">
         </link>
-
         <!-- Flask-admin admin styles -->
         <link href="{{ admin_static.url(filename='admin/css/bootstrap3/admin.css', v='1.1.1') }}" rel="stylesheet">
         {% if admin_view.extra_css %}
@@ -76,6 +73,24 @@
 
     {% block head_tail %}
     {% endblock head_tail %}
+
+
+    <style>
+        .example-modal .modal {
+            position: relative;
+            top: auto;
+            bottom: auto;
+            right: auto;
+            left: auto;
+            display: block;
+            z-index: 1;
+        }
+
+        .example-modal .modal {
+            background: transparent !important;
+        }
+    </style>
+
 
 </head>
 
@@ -97,11 +112,6 @@
 
             <!-- Header Navbar: style can be found in header.less -->
             <nav class="navbar navbar-static-top">
-                <!-- Sidebar toggle button-->
-                <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
-                    <span class="sr-only">Toggle navigation</span>
-                </a>
-
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
                         <!-- Notifications: style can be found in dropdown.less -->
@@ -127,12 +137,13 @@
                                                 page and may cause design problems
                                             </a>
                                         </li>
+
                                     </ul>
                                 </li>
                             </ul>
                         </li>
 
-                        <!-- Control Sidebar Toggle Button -->
+
                         <li>
                         <li class="dropdown user user-menu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -180,7 +191,6 @@
                         </ul>
                     {% endblock %}
 
-
                 </div>
             </nav>
         </header>
@@ -222,7 +232,6 @@
                         {{ layout.menu() }}
                     {% endblock %}
 
-
                     <li class="treeview">
                         <a href="#">
                             <span>Advanced Query</span>
@@ -236,32 +245,103 @@
                         </ul>
                     </li>
                 </ul>
-
-
-                {#                <ul class="treeview-menu" style="display: none;">#}
-
-                {#                </ul>#}
-
-
             </section>
             <!-- /.sidebar -->
-
-
         </aside>
 
         <!-- Content Wrapper. Contains page content color white-->
         <div class="content-wrapper">
 
-            {% block messages %}
-                {{ layout.messages() }}
-            {% endblock messages %}
+            {% if m!="" %}
+                <div class="alert alert-warning alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <h4><i class="icon fa fa-warning"></i> {{ m }}</h4>
+                </div>
+            {% endif %}
+            <!-- Main content -->
+            <section class="content">
 
-            {# store the jinja2 context for form_rules rendering logic #}
-            {% set render_ctx = h.resolve_ctx() %}
-            {% block body %}
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="box">
+                            <div class="box-header">
+                                <h3 class="box-title">Hover Data Table</h3>
+                            </div>
+                            <!-- /.box-header -->
 
-            {% endblock body %}
+                            <div class="box-body">
+                                <form method="post" action="/advanced/consuming" name="advancedConsuming">
+                                    <div class="form-group">
+                                        <div class="input-group-btn">
+                                            <div class="input-group">
+                                                <div class="input-group-addon">
+                                                    <i class="fa fa-calendar"></i>
+                                                </div>
+                                                <input type="text" name="betime" class="form-control "
+                                                       id="reservation">
+                                                <button type="submit" class="btn btn-danger">Action</button>
+                                            </div>
 
+                                        </div>
+                                        <!-- /.input group -->
+                                    </div>
+                                </form>
+                                <div id="example2_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
+                                    <div class="row">
+                                        <div class="col-sm-6"></div>
+                                        <div class="col-sm-6"></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <table id="example2" class="table table-bordered table-hover dataTable"
+                                                   role="grid" aria-describedby="example2_info">
+                                                <thead>
+                                                <tr role="row">
+                                                    <th class="sorting_asc" tabindex="0" aria-controls="example2"
+                                                        rowspan="1" colspan="1"
+                                                        aria-label="Rendering engine: activate to sort column descending"
+                                                        aria-sort="ascending">Customer ID
+                                                    </th>
+                                                    <th class="sorting" tabindex="0" aria-controls="example2"
+                                                        rowspan="1" colspan="1"
+                                                        aria-label="Browser: activate to sort column ascending">
+                                                        Goods Type
+                                                    </th>
+                                                    <th class="sorting" tabindex="0" aria-controls="example2"
+                                                        rowspan="1" colspan="1"
+                                                        aria-label="Platform(s): activate to sort column ascending">
+                                                        Goods ID
+                                                    </th>
+                                                    <th class="sorting" tabindex="0" aria-controls="example2"
+                                                        rowspan="1" colspan="1"
+                                                        aria-label="Engine version: activate to sort column ascending">
+                                                        Consuming Time
+                                                    </th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for item in lessonList %}
+                                                    <tr role="row" class="odd">
+                                                        <td>{{ item.customerid }}</td>
+                                                        <td>{{ item.goodstype }}</td>
+                                                        <td>{{ item.goodsid }}</td>
+                                                        <td>{{ item.time }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <!-- /.box-body -->
+                        </div>
+                        <!-- /.box -->
+                    </div>
+                    <!-- /.col -->
+                </div>
+            </section>
 
         </div>
     </div>
@@ -272,14 +352,31 @@
     <script src="{{ url_for('static',filename='plugins/jQuery/jquery-2.2.3.min.js') }}"></script>
     <!-- jQuery UI 1.11.4 -->
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
-    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-    <script>
-        $.widget.bridge('uibutton', $.ui.button);
-    </script>
     <!-- Bootstrap 3.3.6 -->
     <script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ admin_static.url(filename='vendor/select2/select2.min.js', v='3.5.2') }}"
             type="text/javascript"></script>
+    <!-- Select2 -->
+    <script src="{{ url_for('static',filename='plugins/select2/select2.full.min.js') }}"></script>
+    <!-- InputMask -->
+    <script src="{{ url_for('static',filename='plugins/input-mask/jquery.inputmask.js') }}"></script>
+    <script src="{{ url_for('static',filename='plugins/input-mask/jquery.inputmask.date.extensions.js') }}"></script>
+    <script src="{{ url_for('static',filename='plugins/input-mask/jquery.inputmask.extensions.js') }}"></script>
+    <!-- date-range-picker -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js"></script>
+    <script src="{{ url_for('static',filename='plugins/daterangepicker/daterangepicker.js') }}"></script>
+    <!-- bootstrap datepicker -->
+    <script src="{{ url_for('static',filename='plugins/datepicker/bootstrap-datepicker.js') }}"></script>
+
+
+    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+    <script>
+        $.widget.bridge('uibutton', $.ui.button);
+    </script>
+
+
+
+
 
     {% if admin_view.extra_js %}
         {% for js_url in admin_view.extra_js %}
@@ -297,11 +394,6 @@
     <script src="{{ url_for('static',filename='plugins/jvectormap/jquery-jvectormap-world-mill-en.js') }}"></script>
     <!-- jQuery Knob Chart -->
     <script src="{{ url_for('static',filename='plugins/knob/jquery.knob.js') }}"></script>
-    <!-- daterangepicker -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js"></script>
-    <script src="{{ url_for('static',filename='plugins/daterangepicker/daterangepicker.js') }}"></script>
-    <!-- datepicker -->
-    <script src="{{ url_for('static',filename='plugins/datepicker/bootstrap-datepicker.js') }}"></script>
     <!-- Bootstrap WYSIHTML5 -->
     <script src="{{ url_for('static',filename='plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js') }}"></script>
     <!-- Slimscroll -->
@@ -312,6 +404,55 @@
     <script src="{{ url_for('static',filename='js/appmin2.js') }}"></script>
     <!-- AdminLTE for demo purposes -->
     <script src="{{ url_for('static',filename='js/demo.js') }}"></script>
+
+
+
+    <script>
+        $(function () {
+            //Initialize Select2 Elements
+            $(".select2").select2();
+
+            //Datemask dd/mm/yyyy
+            $("#datemask").inputmask("dd/mm/yyyy", {"placeholder": "dd/mm/yyyy"});
+            //Datemask2 mm/dd/yyyy
+            $("#datemask2").inputmask("yyyy/mm/dd", {"placeholder": "yyyy/mm/dd"});
+            //Money Euro
+            $("[data-mask]").inputmask();
+
+            //Date range picker
+            $('#reservation').daterangepicker();
+            //Date range picker with time picker
+            $('#reservationtime').daterangepicker({
+                timePicker: true,
+                timePickerIncrement: 30,
+                format: 'YYYY/MM/DD h:mm A'
+            });
+            //Date range as a button
+            $('#daterange-btn').daterangepicker(
+                {
+                    ranges: {
+                        '1 Day': [moment(), moment()],
+                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                        'This Month': [moment().startOf('month'), moment().endOf('month')],
+                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                    },
+                    startDate: moment().subtract(29, 'days'),
+                    endDate: moment()
+                },
+                function (start, end) {
+                    $('#daterange-btn span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                }
+            );
+
+            //Date picker
+            $('#datepicker').datepicker({
+                autoclose: true
+            });
+
+        });
+    </script>
 
 
 
