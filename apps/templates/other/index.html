@@ -6,7 +6,7 @@
 <head>
     <script>
         {% if current_user.is_authenticated %}
-            console.log({{ current_user.name }})
+
         {% else %}
             window.location.href = 'http://localhost:5000/login'
         {% endif %}
@@ -107,6 +107,7 @@
                     <span class="logo-mini"><b>MS</b></span>
                     <!-- logo for regular state and mobile devices -->
                     <span class="logo-lg"><b>{{ admin_view.admin.name }}</b></span>
+
                 </a>
             {% endblock brand %}
 
@@ -114,40 +115,44 @@
             <nav class="navbar navbar-static-top">
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
-                        <!-- Notifications: style can be found in dropdown.less -->
                         <li class="dropdown notifications-menu">
+
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-bell-o"></i>
-                                <span class="label label-warning">2</span>
+                                {% if  count+leavef >0 %}
+                                    <span class="label label-warning">{{ count+leavef }}</span>
+                                {% endif %}
                             </a>
+
                             <ul class="dropdown-menu">
-                                <li class="header">You have notifications</li>
+
+                                <li class="header">You have {{ count+leavef }} notifications</li>
                                 <li>
                                     <!-- inner menu: contains the actual data -->
                                     <ul class="menu">
-                                        <li>
-                                            <a href="#">
-                                                <i class="fa fa-users text-aqua"></i> 5 new members joined today
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <i class="fa fa-warning text-yellow"></i> Very long description here
-                                                that may not fit into the
-                                                page and may cause design problems
-                                            </a>
-                                        </li>
-
+                                        {% if leavef==1 %}
+                                            <li>
+                                                <a href="#">
+                                                    <i class="fa fa-users text-aqua"></i> You are on leave
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                        {% if overdue==1 %}
+                                            <li>
+                                                <a href="#">
+                                                    <i class="fa fa-warning text-yellow"></i> You have an expired
+                                                    membership card
+                                                </a>
+                                            </li>
+                                        {% endif %}
                                     </ul>
                                 </li>
                             </ul>
                         </li>
-
-
-                        <li>
                         <li class="dropdown user user-menu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-user-circle" style="color: white; font-size: 1.4em;"></i>
+
                                 <span class="hidden-xs">
                                     {% if current_user.name %}
                                         {{ current_user.name }}
@@ -433,7 +438,7 @@
                                                 </h3>
 
                                                 <div class="timeline-body">
-                                                    请输入要购买的课程号，系统会将您添加至课程学员列表中，购买时自动使用折扣最低的会员卡！
+                                                    请输入要购买的课程号，系统会将您添加至课程学员列表中，购买时自动使用折扣最高·的会员卡！
                                                 </div>
                                                 <form method="post" action="/profile/buyLesson" name="buyLesson">
                                                     <div class="input-group margin">
@@ -477,7 +482,7 @@
     <!-- jQuery 2.2.3 -->
     <script src="{{ url_for('static',filename='plugins/jQuery/jquery-2.2.3.min.js') }}"></script>
     <!-- jQuery UI 1.11.4 -->
-    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+{#    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>#}
     <!-- Bootstrap 3.3.6 -->
     <script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ admin_static.url(filename='vendor/select2/select2.min.js', v='3.5.2') }}"
@@ -496,9 +501,7 @@
 
 
     <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-    <script>
-        $.widget.bridge('uibutton', $.ui.button);
-    </script>
+
 
 
 

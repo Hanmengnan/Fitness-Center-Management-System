@@ -27,6 +27,7 @@ class User(db.Model , UserMixin):
     email = db.Column(db.String(255) , unique=True)
     password = db.Column(db.String(255))
     active = db.Column(db.Boolean())
+    customerID = db.Column(db.Integer)
     roles = db.relationship('Role' , secondary=roles_users ,
                             backref=db.backref('users' , lazy='dynamic'))
 
@@ -38,8 +39,9 @@ class User(db.Model , UserMixin):
 
 
 lessons_of_customer = db.Table('lessons_of_customer' ,
-                               db.Column('lesson_id' , db.Integer() , db.ForeignKey('lesson.id')) ,
-                               db.Column('customer_id' , db.Integer() , db.ForeignKey('customer.id')))
+                               db.Column('lesson_id' , db.Integer() , db.ForeignKey('lesson.id') , primary_key=True) ,
+                               db.Column('customer_id' , db.Integer() , db.ForeignKey('customer.id') , primary_key=True)
+                               )
 
 
 class Customer(db.Model):
@@ -71,8 +73,8 @@ class VipCard(db.Model):
     overdue_Date = db.Column(db.DateTime)
     price = db.Column(db.Integer)
     discount = db.Column(db.DECIMAL(10 , 2))
-    saled = db.Column(db.Boolean)
-    customer = db.Column(db.Integer , db.ForeignKey('customer.id'))
+    saled = db.Column(db.Boolean , default=False)
+    customer = db.Column(db.Integer , db.ForeignKey('customer.id') , nullable=True)
 
     def __str__(self):
         return self.name
@@ -132,3 +134,24 @@ class Leave(db.Model):
     customerid = db.Column(db.Integer , db.ForeignKey('customer.id'))
     starttime = db.Column(db.DateTime)
     endtime = db.Column(db.DateTime)
+
+    def __init__(self , customerid , starttime , endtime):
+        self.customerid = customerid
+        self.starttime = starttime
+        self.endtime = endtime
+
+
+class Authority(db.Model):
+    userId = db.Column(db.Integer , primary_key=True)
+    customerDetail = db.Column(db.Boolean)
+    customerManage = db.Column(db.Boolean)
+    lessonDetail = db.Column(db.Boolean)
+    lessonManage = db.Column(db.Boolean)
+    coachDetail = db.Column(db.Boolean)
+    coachManage = db.Column(db.Boolean)
+    cardDetail = db.Column(db.Boolean)
+    cardManage = db.Column(db.Boolean)
+    leaveManage = db.Column(db.Boolean)
+    userAdd = db.Column(db.Boolean)
+    userEdit = db.Column(db.Boolean)
+    userDelete = db.Column(db.Boolean)

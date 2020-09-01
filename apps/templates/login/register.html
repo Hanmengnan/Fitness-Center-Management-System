@@ -17,6 +17,10 @@
                     <span class="glyphicon glyphicon-user form-control-feedback"></span>
                 </div>
                 <div class="form-group has-feedback">
+                    {{ form.customerid(id="customerid",class="form-control",placeholder="CustomerID",required=True) }}
+                    <span class="glyphicon glyphicon-ok form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
                     {{ form.email(id="email",class="form-control",placeholder="Email",required=True) }}
                     <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
                 </div>
@@ -36,7 +40,7 @@
                     </div>
                     <!-- /.col -->
                     <div class="col-xs-4">
-                        {{ form.register(class="btn btn-primary btn-block btn-flat",value="Sign In") }}
+                        {{ form.register(class="btn btn-primary btn-block btn-flat",value="Register") }}
                     </div>
                     <!-- /.col -->
                 </div>

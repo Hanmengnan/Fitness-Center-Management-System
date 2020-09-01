@@ -10,6 +10,7 @@ class loginForm(FlaskForm):
 
 class registerForm(FlaskForm):
     username = fields.StringField(label=u'用户名' , validators=[validators.required()])
+    customerid=fields.StringField(label=u'会员账号' , validators=[validators.required()])
     email = fields.StringField(label=u'电子邮箱' , validators=[validators.required()])
     password = fields.PasswordField(label=u'密码' , validators=[validators.required()])
     re_password = fields.PasswordField(label=u'密码' , validators=[validators.required()])

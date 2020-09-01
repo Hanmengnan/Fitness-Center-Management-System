@@ -6,7 +6,7 @@
 <head>
     <script>
         {% if current_user.is_authenticated %}
-            console.log({{ current_user.name }})
+
         {% else %}
             window.location.href = 'http://localhost:5000/login'
         {% endif %}
@@ -115,36 +115,6 @@
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
                         <!-- Notifications: style can be found in dropdown.less -->
-                        <li class="dropdown notifications-menu">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <i class="fa fa-bell-o"></i>
-                                <span class="label label-warning">2</span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li class="header">You have notifications</li>
-                                <li>
-                                    <!-- inner menu: contains the actual data -->
-                                    <ul class="menu">
-                                        <li>
-                                            <a href="#">
-                                                <i class="fa fa-users text-aqua"></i> 5 new members joined today
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <i class="fa fa-warning text-yellow"></i> Very long description here
-                                                that may not fit into the
-                                                page and may cause design problems
-                                            </a>
-                                        </li>
-
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-
-
-                        <li>
                         <li class="dropdown user user-menu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-user-circle" style="color: white; font-size: 1.4em;"></i>
@@ -351,7 +321,7 @@
     <!-- jQuery 2.2.3 -->
     <script src="{{ url_for('static',filename='plugins/jQuery/jquery-2.2.3.min.js') }}"></script>
     <!-- jQuery UI 1.11.4 -->
-    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+{#    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>#}
     <!-- Bootstrap 3.3.6 -->
     <script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ admin_static.url(filename='vendor/select2/select2.min.js', v='3.5.2') }}"
@@ -369,10 +339,7 @@
     <script src="{{ url_for('static',filename='plugins/datepicker/bootstrap-datepicker.js') }}"></script>
 
 
-    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-    <script>
-        $.widget.bridge('uibutton', $.ui.button);
-    </script>
+
 
 
 

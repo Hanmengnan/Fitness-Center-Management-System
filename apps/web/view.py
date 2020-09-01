@@ -5,6 +5,8 @@ from flask_security import login_required , login_user , logout_user , roles_req
 from apps import admin
 from . import web
 import datetime
+import time
+from flask_security import current_user
 
 
 @web.context_processor
@@ -24,6 +26,7 @@ def init():
 
 @web.route("/admin")
 def index():
+    print("22222")
     return render_template('admin/mybase.html')
 
 
@@ -60,22 +63,48 @@ def register():
     if form.validate_on_submit():
         username = form.username.data
         email = form.email.data
+        customerID = form.customerid.data
         password = form.password.data
         re_password = form.re_password.data
+        if password != re_password:
+            return render_template('login/register.html' , form=form , m="两次输入密码不一致")
 
-        if password == re_password:
-            role = user_datastore.find_role("user")
-            user = user_datastore.create_user(name=username , email=email , password=password)
-            user_datastore.add_role_to_user(user , role)
-            db.session.commit()
-            return redirect('/login')
-        return render_template('login/register.html' , form=form , m="两次输入密码不一致")
+        if Customer.query.filter_by(id=customerID).first() == None:
+            return render_template('login/register.html' , form=form , m="会员号码不存在，请联系管理员")
+
+        if User.query.filter_by(name=username).first() != None:
+            return render_template('login/register.html' , form=form , m="该用户名已存在")
+
+        role = user_datastore.find_role("user")
+        user = user_datastore.create_user(name=username , email=email , password=password , customerID=customerID)
+        user_datastore.add_role_to_user(user , role)
+        db.session.commit()
+        return redirect('/login')
+
     return render_template('login/register.html' , form=form , m="")
+
+
+def notify():
+    id = current_user.customerID
+    t = datetime.datetime.now()
+
+    leave = count = overdue = 0
+
+    l = Leave.query.filter_by(customerid=id).first()
+    if l != None and t < l.endtime:
+        leave = 1
+
+    cards = VipCard.query.filter_by(customer=id)
+    for c in cards:
+        print(c.overdue_Date)
+        if c.overdue_Date < t:
+            count += 1
+            overdue = 1
+    return leave , overdue , count
 
 
 @web.route("/profile" , methods=['GET'])
 def profile():
-    from flask_security import current_user
     from apps.model import Customer
     userid = current_user.id
     customer = Customer.query.filter_by(id=userid).first()
@@ -86,16 +115,20 @@ def profile():
     sid = customer.sid
     phoneNumber = customer.phoneNumber
     money = customer.money
+    leavef , overdue , count = notify()
 
     return render_template('other/index.html' , **locals() , m="")
 
 
-@web.route("/profile/<action>" , methods=['POST'])
+@web.route("/profile/<action>" , methods=['POST' , "GET"])
 def profileAction(action):
+    if request.method == "GET":
+        return redirect("/profile")
+
     from flask_security import current_user
 
-    userid = current_user.id
-    customer = Customer.query.filter_by(id=userid).first()
+    customerID = current_user.customerID
+    customer = Customer.query.filter_by(id=customerID).first()
     name = customer.name
     sex = customer.sex
     hcondition = customer.hcondition
@@ -103,13 +136,16 @@ def profileAction(action):
     sid = customer.sid
     phoneNumber = customer.phoneNumber
     money = customer.money
+
+    leavef , overdue , count = notify()
+
     if action == "transferCard":
         cid = request.form.get("cardid")
         uid = request.form.get("userid")
-        old_owner = VipCard.query.filter_by(customer=userid , id=cid).first()
+        old_owner = VipCard.query.filter_by(customer=customerID , id=cid).first()
         aim_customer = Customer.query.filter_by(id=uid).first()
         if aim_customer and old_owner:
-            VipCard.query.filter_by(customer=userid , id=cid).update({"customer": int(uid)})
+            VipCard.query.filter_by(customer=customerID , id=cid).update({"customer": int(uid)})
             db.session.commit()
             return render_template('other/index.html' , **locals() , m="操作成功")
         else:
@@ -117,12 +153,23 @@ def profileAction(action):
 
     elif action == "leave":
         dayNum = request.form.get("dayNum")
-        vipcards = VipCard.query.filter_by(customer=userid)
+
+        leave = Leave.query.filter_by(customerid=customerID).first()
+        if leave == None:
+            nowTime = datetime.datetime.now()
+            endTime = nowTime + datetime.timedelta(days=int(dayNum))
+            newLeave = Leave(customerID , nowTime , endTime)
+            db.session.add(newLeave)
+        else:
+            leave.endtime = leave.endtime + datetime.timedelta(days=int(dayNum))
+
+        vipcards = VipCard.query.filter_by(customer=customerID)
         for card in vipcards:
             date = card.overdue_Date + datetime.timedelta(days=int(dayNum))
             VipCard.query.filter_by(id=card.id).update({"overdue_Date": date})
+
         db.session.commit()
-        return render_template('other/index.html' , **locals() , m="操作成功")
+        return redirect('/profile')
 
     elif action == "buyCard":
         cardid = request.form.get("cardid")
@@ -130,19 +177,23 @@ def profileAction(action):
         if card != None:
             if customer.money >= card.price:
                 if card.saled == True:
-                    if card.customer == userid:
+                    if card.customer == customerID:
                         date = card.overdue_Date + datetime.timedelta(days=365)
                         VipCard.query.filter_by(id=card.id).update({"overdue_Date": date})
-                        Customer.query.filter_by(id=userid).update({"money": customer.money - card.price})
+                        Customer.query.filter_by(id=customerID).update({"money": customer.money - card.price})
                         db.session.commit()
-                        return render_template('other/index.html' , **locals() , m="操作成功")
+                        # return render_template('other/index.html' , **locals() , m="操作成功")
+                        return redirect('/profile')
                     else:
                         return render_template('other/index.html' , **locals() , m="该卡为别人所有，不能购买")
                 else:
-                    VipCard.query.filter_by(id=card.id).update({"customer": userid , "saled": True})
-                    Customer.query.filter_by(id=userid).update({"money": customer.money - card.price})
+                    VipCard.query.filter_by(id=card.id).update({"customer": customerID , "saled": True})
+                    Customer.query.filter_by(id=customerID).update({"money": customer.money - card.price})
+                    db.session.add(Consuming(customerid=customerID , goodstype="会员卡" , goodsid=cardid ,
+                                             time=datetime.datetime.now()))
                     db.session.commit()
-                    return render_template('other/index.html' , **locals() , m="操作成功")
+                    # return render_template('other/index.html' , **locals() , m="操作成功")
+                    return redirect('/profile')
             else:
                 return render_template('other/index.html' , **locals() , m="金额不足")
         else:
@@ -152,29 +203,40 @@ def profileAction(action):
         cardid = request.form.get("cardid")
         lessonid = request.form.get("lessonid")
 
-        customer = Customer.query.filter_by(id=userid).first()
-        card = VipCard.query.filter_by(id=cardid).first()
-        lesson = Lesson.query.filter_by(id=lessonid).first()
+        customer = Customer.query.filter_by(id=customerID).first()
+        if cardid == "":
+            card = None
+            discount = 1
+        else:
+            card = VipCard.query.filter_by(id=cardid).first()
+            discount = card.discount
 
-        leave = Leave.query.filter_by(id=userid).first()
+        lesson = Lesson.query.filter_by(id=lessonid).first()
+        leave = Leave.query.filter_by(customerid=customerID).first()
         if leave != None:
             if datetime.datetime.now() > leave.endtime:
-                leave = Leave.query.filter_by(id=userid).delete()
+                leave = Leave.query.filter_by(customerid=customerID).delete()
             else:
                 return render_template('other/index.html' , **locals() , m="请假期间不能消费 ")
 
-        if card == None or card.customer != userid:
+        if card != None and card.customer != customerID:
             return render_template('other/index.html' , **locals() , m="卡号错误")
         elif lesson == None:
             return render_template('other/index.html' , **locals() , m="课程号错误")
+        elif lesson in customer.lessons:
+            return render_template('other/index.html' , **locals() , m="课程已购买")
         else:
-            r = (customer.money) - (lesson.cost * card.discount)
+            r = (customer.money) - (lesson.cost * discount)
             if r < 0:
                 return render_template('other/index.html' , **locals() , m="金额不足")
             else:
-                Customer.query.filter_by(id=userid).update({"money": r})
+                c = Customer.query.filter_by(id=customerID)
+                c.update({"money": r})
+                c.first().lessons.append(lesson)
+                db.session.add(
+                    Consuming(customerid=customerID , goodstype="课程" , goodsid=lessonid , time=datetime.datetime.now()))
                 db.session.commit()
-                return render_template('other/index.html' , **locals() , m="操作成功")
+                return redirect('/profile')
     else:
         return render_template('other/index.html' , **locals() , m="非法操作")
 
@@ -213,7 +275,7 @@ def advancedConsuming():
         for i in Consumings:
             ConsumingDict = {}
             ConsumingDict["customerid"] = i.customerid
-            ConsumingDict["goodstype"] = "会员卡" if i.goodstype == "1" else "课程"
+            ConsumingDict["goodstype"] = i.goodstype
             ConsumingDict["time"] = i.time.strftime("%Y-%m-%d")
             ConsumingDict["goodsid"] = i.goodsid
             ConsumingList.append(ConsumingDict)
