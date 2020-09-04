@@ -27,7 +27,7 @@ class User(db.Model , UserMixin):
     email = db.Column(db.String(255) , unique=True)
     password = db.Column(db.String(255))
     active = db.Column(db.Boolean())
-    customerID = db.Column(db.Integer)
+    customerID = db.Column(db.Integer , db.ForeignKey('customer.id'))
     roles = db.relationship('Role' , secondary=roles_users ,
                             backref=db.backref('users' , lazy='dynamic'))
 
@@ -142,7 +142,7 @@ class Leave(db.Model):
 
 
 class Authority(db.Model):
-    userId = db.Column(db.Integer , primary_key=True)
+    roleName = db.Column(db.String(80) , db.ForeignKey('role.name') , primary_key=True)
     customerDetail = db.Column(db.Boolean)
     customerManage = db.Column(db.Boolean)
     lessonDetail = db.Column(db.Boolean)
@@ -155,3 +155,18 @@ class Authority(db.Model):
     userAdd = db.Column(db.Boolean)
     userEdit = db.Column(db.Boolean)
     userDelete = db.Column(db.Boolean)
+
+    def __int__(self , customerDetail , customerManage , lessonDetail , lessonManage , coachDetail ,
+                coachManage , cardDetail , cardManage , leaveManage , userAdd , userEdit , userDelete):
+        self.customerDetail = customerDetail
+        self.customerManage = customerManage
+        self.lessonDetail = lessonDetail
+        self.lessonManage = lessonManage
+        self.coachDetail = coachDetail
+        self.coachManage = coachManage
+        self.cardDetail = cardDetail
+        self.cardManage = cardManage
+        self.leaveManage = leaveManage
+        self.userAdd = userAdd
+        self.userEdit = userEdit
+        self.userDelete = userDelete

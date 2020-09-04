@@ -202,19 +202,6 @@
                     {% block main_menu %}
                         {{ layout.menu() }}
                     {% endblock %}
-
-                    <li class="treeview">
-                        <a href="#">
-                            <span>Advanced Query</span>
-                            <span class="pull-right-container">
-                                <i class="fa fa-angle-left pull-right"></i>
-                            </span>
-                        </a>
-                        <ul class="treeview-menu" style="display: none;">
-                            <li><a href="/advanced/lesson"><i class="fa fa-circle-o"></i> Lesson Query</a></li>
-                            <li><a href="/advanced/consuming"><i class="fa fa-circle-o"></i> Consuming Query</a></li>
-                        </ul>
-                    </li>
                 </ul>
             </section>
             <!-- /.sidebar -->
@@ -231,8 +218,76 @@
             {% endif %}
             <!-- Main content -->
             <section class="content">
-
                 <div class="row">
+                    <div class="col-md-6">
+                        <div class="box">
+                            <div class="box-header with-border">
+                                <h3 class="box-title">教练授课情况</h3>
+                            </div>
+                            <!-- /.box-header -->
+                            <div class="box-body">
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th style="width: 10px">#</th>
+                                        <th style="width: 120px">名称</th>
+                                        <th>受欢迎度</th>
+                                        <th style="width: 60px">授课数</th>
+                                    </tr>
+                                    {% for item in cs %}
+                                        <tr role="row" class="odd">
+                                            <td>{{ loop.index }}</td>
+                                            <td>{{ item.name }}</td>
+                                            <td>
+                                                <div class="progress progress-xs">
+                                                    <div class="progress-bar progress-bar-danger"
+                                                         style="width: {{ item.popular }}%"></div>
+                                                </div>
+                                            </td>
+                                            <td><span class="badge bg-light-blue">{{ item.num }}</span></td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                            </div>
+                        </div>
+                        <!-- /.box -->
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-md-6">
+                        <div class="box">
+                            <div class="box-header">
+                                <h3 class="box-title">最受欢迎课程</h3>
+                            </div>
+                            <!-- /.box-header -->
+                            <div class="box-body no-padding">
+                                <table class="table table-striped">
+                                    <tr>
+                                        <th style="width: 10px">#</th>
+                                        <th>课程名</th>
+                                        <th>受欢迎度</th>
+                                        <th style="width: 80px">选课人数</th>
+                                    </tr>
+
+                                    {% for item in ls %}
+                                        <tr role="row" class="odd">
+                                            <td>{{ loop.index }}</td>
+                                            <td>{{ item.name }}</td>
+                                            <td>
+                                                <div class="progress progress-xs">
+                                                    <div class="progress-bar progress-bar-danger"
+                                                         style="width: {{ item.popular }}%"></div>
+                                                </div>
+                                            </td>
+                                            <td><span class="badge bg-light-blue">{{ item.num }}</span></td>
+                                        </tr>
+                                    {% endfor %}
+
+
+                                </table>
+                            </div>
+                            <!-- /.box-body -->
+                        </div>
+                        <!-- /.box -->
+                    </div>
                     <div class="col-xs-12">
                         <div class="box">
                             <div class="box-header">
@@ -329,7 +384,7 @@
     <!-- jQuery 2.2.3 -->
     <script src="{{ url_for('static',filename='plugins/jQuery/jquery-2.2.3.min.js') }}"></script>
     <!-- jQuery UI 1.11.4 -->
-{#    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>#}
+    {#    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>#}
     <!-- Bootstrap 3.3.6 -->
     <script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ admin_static.url(filename='vendor/select2/select2.min.js', v='3.5.2') }}"

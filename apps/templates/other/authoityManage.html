@@ -1,0 +1,375 @@
+{% import 'admin/mylayout.html' as layout with context -%}
+{% import 'admin/static.html' as admin_static with context %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        {% block title %}{% if admin_view.category %}{{ admin_view.category }} - {% endif %}{{ admin_view.name }} -
+            {{ admin_view.admin.name }}{% endblock title %}</title>
+
+    {% block head_meta %}
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Flask-Admin dashboard login template">
+        <meta name="author" content="Jonathan Ars">
+    {% endblock head_meta %}
+
+    {% block head_css %}
+        <!-- Bootstrap 3.3.6 -->
+        <link href="{{ url_for('static',filename='css/bootstrap.min.css') }}" rel="stylesheet">
+        </link>
+        <!-- Font Awesome -->
+        <link rel="stylesheet"
+              href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <!-- Ionicons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+        <!-- Theme style -->
+        <link href="{{ url_for('static',filename='css/AdminLTE.min.css') }}" rel="stylesheet">
+        </link>
+        <!-- AdminLTE Skins. Choose a skin from the css/skins folder instead of downloading all of them to reduce the load. -->
+        <link href="{{ url_for('static',filename='css/skins/_all-skins.min.css') }}" rel="stylesheet">
+        <!-- iCheck -->
+        <link href="{{ url_for('static',filename='plugins/iCheck/flat/blue.css') }}" rel="stylesheet">
+        </link>
+        <!-- Morris chart -->
+        <link href="{{ url_for('static',filename='plugins/morris/morris.css') }}" rel="stylesheet">
+        </link>
+        <!-- jvectormap -->
+        <link href="{{ url_for('static',filename='plugins/jvectormap/jquery-jvectormap-1.2.2.css') }}"
+              rel="stylesheet">
+        </link>
+        <!-- Date Picker -->
+        <link href="{{ url_for('static',filename='plugins/datepicker/datepicker3.css') }}" rel="stylesheet">
+        </link>
+        <!-- Daterange picker -->
+        <link href="{{ url_for('static',filename='plugins/daterangepicker/daterangepicker.css') }}"
+              rel="stylesheet">
+        </link>
+        <!-- bootstrap wysihtml5 - text editor -->
+        <link href="{{ url_for('static',filename='plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css') }}"
+              rel="stylesheet">
+        </link>
+        <!-- Flask-admin admin styles -->
+        <link href="{{ admin_static.url(filename='admin/css/bootstrap3/admin.css', v='1.1.1') }}" rel="stylesheet">
+        {% if admin_view.extra_css %}
+            {% for css_url in admin_view.extra_css %}
+                <link href="{{ css_url }}" rel="stylesheet">
+            {% endfor %}
+        {% endif %}
+
+
+        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+        <!-- Bootstrap 3.3.6 -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap/css/bootstrap.min.css') }}">
+        <!-- Font Awesome -->
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+        <!-- Ionicons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+        <!-- daterange picker -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='plugins/daterangepicker/daterangepicker.css') }}">
+        <!-- bootstrap datepicker -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='plugins/datepicker/datepicker3.css') }}">
+        <!-- iCheck for checkboxes and radio inputs -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='plugins/iCheck/all.css') }}">
+        <!-- Bootstrap Color Picker -->
+        <link rel="stylesheet"
+              href="{{ url_for('static',filename='plugins/colorpicker/bootstrap-colorpicker.min.css') }}">
+        <!-- Bootstrap time Picker -->
+        <link rel="stylesheet"
+              href="{{ url_for('static',filename='plugins/timepicker/bootstrap-timepicker.min.css') }}">
+        <!-- Select2 -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='plugins/select2/select2.min.css') }}">
+        <!-- Theme style -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='dist/css/AdminLTE.min.css') }}">
+        <!-- AdminLTE Skins. Choose a skin from the css/skins
+             folder instead of downloading all of them to reduce the load. -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='dist/css/skins/_all-skins.min.css') }}">
+    {% endblock head_css %}
+
+    {% block head %}
+    {% endblock head %}
+
+    {% block head_tail %}
+    {% endblock head_tail %}
+
+    <style>
+        .example-modal .modal {
+            position: relative;
+            top: auto;
+            bottom: auto;
+            right: auto;
+            left: auto;
+            display: block;
+            z-index: 1;
+        }
+
+        .example-modal .modal {
+            background: transparent !important;
+        }
+    </style>
+
+</head>
+
+<body class="hold-transition skin-blue sidebar-mini">
+
+{% block page_body %}
+    <!-- TOP NAVBAR -->
+    <div class="wrapper">
+        <header class="main-header">
+            <!-- Logo -->
+            {% block brand %}
+                <a href="{{ admin_view.admin.url }}" class="logo">
+                    <!-- mini logo for sidebar mini 50x50 pixels -->
+                    <span class="logo-mini"><b>MS</b></span>
+                    <!-- logo for regular state and mobile devices -->
+                    <span class="logo-lg"><b>{{ admin_view.admin.name }}</b></span>
+
+                </a>
+            {% endblock brand %}
+
+            <!-- Header Navbar: style can be found in header.less -->
+            <nav class="navbar navbar-static-top">
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+
+                        <li class="dropdown user user-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-user-circle" style="color: white; font-size: 1.4em;"></i>
+
+                                <span class="hidden-xs">
+                                    {% if current_user.name %}
+                                        {{ current_user.name }}
+                                    {% else %}
+                                        {{ current_user.email }}
+                                    {% endif %}
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <!-- User image -->
+                                <li class="user-header">
+                                    <i class="fa fa-user-circle" style="color: white; font-size: 7em;"></i>
+                                    <p>
+                                        {% if current_user.name %}
+                                            {{ current_user.name }}
+                                        {% else %}
+                                            {{ current_user.email }}
+                                        {% endif %}
+                                    </p>
+                                </li>
+
+                                <!-- Menu Footer-->
+                                <li class="user-footer">
+                                    <div class="pull-left">
+                                        <a href="{{ url_for('web.profile') }}"
+                                           class="btn btn-default btn-flat">Profile</a>
+                                    </div>
+                                    <div class="pull-right">
+                                        <a href="{{ url_for('web.logout') }}" class="btn btn-default btn-flat">Sign
+                                            out</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+
+                    </ul>
+
+                    {% block menu_links %}
+                        <ul class="nav navbar-nav navbar-right">
+                            {{ layout.menu_links() }}
+                        </ul>
+                    {% endblock %}
+
+                </div>
+            </nav>
+        </header>
+
+        <!-- LEFT MENU -->
+        <aside class="main-sidebar">
+            <!-- sidebar: style can be found in sidebar.less -->
+            <section class="sidebar">
+                <!-- Sidebar user panel -->
+                <div class="user-panel">
+                    <div class="pull-left image">
+                        <i class="fa fa-user-circle" style="color: white; font-size: 2.5em;"></i>
+                    </div>
+                    <div class="pull-left info">
+                        <p>
+                            {{ current_user.name }}
+                        </p>
+                        <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+                    </div>
+                </div>
+                <!-- search form -->
+                <form action="#" method="get" class="sidebar-form">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Search...">
+
+                        <span class="input-group-btn">
+                            <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i
+                                    class="fa fa-search"></i>
+                            </button>
+                        </span>
+                    </div>
+                </form>
+                <!-- /.search form -->
+                <!-- sidebar menu: : style can be found in sidebar.less -->
+                <ul class="sidebar-menu">
+                    <li class="header">MAIN NAVIGATION</li>
+                    {% block main_menu %}
+                        {{ layout.menu() }}
+                    {% endblock %}
+
+                </ul>
+            </section>
+            <!-- /.sidebar -->
+        </aside>
+
+        <!-- Content Wrapper. Contains page content color white-->
+
+        <div class="content-wrapper">
+            <section class="content">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <form class="form-horizontal" method="post" action="/authority" name="authorityModify">
+                            {{ form.csrf_token }}
+                            {{ form.hidden_tag() }}
+                            <div class="box-header">
+                                <h3 class="box-title"></h3>
+                                <div class="box-body">
+                                    <div class="form-group">
+                                        <div class="col-sm-12">
+                                            {{ form.roleName(id="roleName",class="form-control",placeholder="RoleName",required=True) }}
+                                        </div>
+                                    </div>
+                                    {{ form.query(class="btn btn-block btn-primary",value="Query") }}
+                                </div>
+                            </div>
+                            <div class="box-header with-border">
+                                <h3 class="box-title"></h3>
+                            </div>
+                            <div class="box-body">
+                                <table class="table table-bordered text-center">
+                                    <tr class="form-group">
+                                        <td>
+                                            {{ form.c1(type="checkbox" ,class="flat-red") }}
+                                            会员详细信息浏览
+                                        </td>
+
+                                        <td>
+                                            {{ form.c2(type="checkbox" ,class="flat-red") }}
+                                            会员信息管理
+                                        </td>
+                                    </tr>
+                                    <tr class="form-group">
+                                        <td>
+                                            {{ form.c3(type="checkbox" ,class="flat-red") }}
+                                            课程详细信息浏览
+                                        </td>
+                                        <td>
+                                            {{ form.c4(type="checkbox" ,class="flat-red") }}
+                                            课程信息管理
+                                        </td>
+                                    </tr>
+                                    <tr class="form-group">
+                                        <td>
+                                            {{ form.c5(type="checkbox" ,class="flat-red") }}
+                                            教练详细信息浏览
+                                        </td>
+
+                                        <td>
+                                            {{ form.c6(type="checkbox" ,class="flat-red") }}
+                                            教练信息管理
+                                        </td>
+                                    </tr>
+                                    <tr class="form-group">
+                                        <td>
+                                            {{ form.c7(type="checkbox" ,class="flat-red") }}
+                                            会员卡详细信息浏览
+                                        </td>
+                                        <td>
+                                            {{ form.c8(type="checkbox" ,class="flat-red") }}
+                                            会员卡信息管理
+                                        </td>
+                                    </tr>
+                                    <tr class="form-group">
+                                        <td>
+                                            {{ form.c9(type="checkbox" ,class="flat-red") }}
+                                            请假信息管理
+                                        </td>
+                                        <td>
+                                            {{ form.c10(type="checkbox" ,class="flat-red") }}
+                                            新建用户
+                                        </td>
+                                    </tr>
+                                    <tr class="form-group">
+                                        <td>
+                                            {{ form.c11(type="checkbox" ,class="flat-red") }}
+                                            编辑用户
+                                        </td>
+                                        <td>
+                                            {{ form.c12(type="checkbox" ,class="flat-red") }}
+                                            删除用户
+                                        </td>
+                                    </tr>
+                                </table>
+                                <div>
+                                    {{ form.modify(class="btn btn-block btn-success",value="Modify") }}
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock page_body %}
+
+<!-- jQuery 2.2.3 -->
+<script src="{{ url_for('static',filename='plugins/jQuery/jquery-2.2.3.min.js') }}"></script>
+<!-- Bootstrap 3.3.6 -->
+<script src="{{ url_for('static',filename='bootstrap/js/bootstrap.min.js') }}"></script>
+<!-- Select2 -->
+<script src="{{ url_for('static',filename='plugins/select2/select2.full.min.js') }}"></script>
+<!-- InputMask -->
+<script src="{{ url_for('static',filename='plugins/input-mask/jquery.inputmask.js') }}"></script>
+<script src="{{ url_for('static',filename='plugins/input-mask/jquery.inputmask.date.extensions.js') }}"></script>
+<script src="{{ url_for('static',filename='plugins/input-mask/jquery.inputmask.extensions.js') }}"></script>
+<!-- date-range-picker -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js"></script>
+<script src="{{ url_for('static',filename='plugins/daterangepicker/daterangepicker.js') }}"></script>
+<!-- bootstrap datepicker -->
+<script src="{{ url_for('static',filename='plugins/datepicker/bootstrap-datepicker.js') }}"></script>
+<!-- bootstrap color picker -->
+<script src=".{{ url_for('static',filename='plugins/colorpicker/bootstrap-colorpicker.min.js') }}"></script>
+<!-- bootstrap time picker -->
+<script src="{{ url_for('static',filename='plugins/timepicker/bootstrap-timepicker.min.js') }}"></script>
+<!-- iCheck 1.0.1 -->
+<script src="{{ url_for('static',filename='plugins/iCheck/icheck.min.js') }}"></script>
+<script src="{{ url_for('static',filename='js/appmin2.js') }}"></script>
+
+<!-- Page script -->
+<script>
+    //iCheck for checkbox and radio inputs
+    $('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+        checkboxClass: 'icheckbox_minimal-blue',
+        radioClass: 'iradio_minimal-blue'
+    });
+    //Flat red color scheme for iCheck
+    $('input[type="checkbox"].flat-red, input[type="radio"].flat-red').iCheck({
+        checkboxClass: 'icheckbox_flat-green',
+        radioClass: 'iradio_flat-green'
+    });
+
+    //Colorpicker
+    $(".my-colorpicker1").colorpicker();
+    //color picker with addon
+    $(".my-colorpicker2").colorpicker();
+
+</script>
+
+
+</body>
+
+</html>

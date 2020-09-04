@@ -47,6 +47,25 @@
         </li>
 
     {% endfor %}
+    {% if current_user.has_role('admin') %}
+        <li class="nav-item">
+            <a href="/authority" class="nav-link" one-link-mark="yes">
+                <p>权限管理</p>
+            </a>
+        </li>
+    {% endif %}
+    <li class="treeview">
+        <a href="#">
+            <span> 高级查询</span>
+            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+        </a>
+        <ul class="treeview-menu" style="display: none;">
+            <li><a href="/advanced/lesson"><i class="fa fa-circle-o"></i> 课程查询</a></li>
+            <li><a href="/advanced/consuming"><i class="fa fa-circle-o"></i> 消费查询</a></li>
+        </ul>
+    </li>
 {% endmacro %}
 
 {% macro menu_links(links=None) %}

@@ -1,12 +1,37 @@
+import datetime
+
 from flask import url_for , redirect , render_template , request
 from flask_admin import helpers as admin_helpers
-from flask_security import login_required , login_user , logout_user , roles_required
+from flask_security import current_user
+from flask_security import login_required , login_user , logout_user
 
 from apps import admin
 from . import web
-import datetime
-import time
-from flask_security import current_user
+
+
+def getc():
+    cnum = len(Customer.query.filter_by().all())
+    coaches = Coach.query.filter_by().all()
+    coachList = []
+
+    for i in coaches:
+        t = 0
+        for j in i.lessons:
+            t += len(j.customers.all())
+        cdict = {"name": i.name , "popular": int(100 * t / cnum) , "num": len(i.lessons)}
+        coachList.append(cdict)
+    return coachList
+
+
+def getl():
+    cnum = len(Customer.query.filter_by().all())
+    lessons = Lesson.query.filter_by().all()
+    lessonList = []
+    for i in lessons:
+        ldict = {"name": i.lessonName , "num": len(i.customers.all()) ,
+                 "popular": int(100 * len(i.customers.all()) / cnum)}
+        lessonList.append(ldict)
+    return lessonList
 
 
 @web.context_processor
@@ -15,7 +40,7 @@ def web_context_processor():
         admin_base_template=admin.base_template ,
         admin_view=admin.index_view ,
         get_url=url_for ,
-        h=admin_helpers
+        h=admin_helpers ,
     )
 
 
@@ -26,13 +51,11 @@ def init():
 
 @web.route("/admin")
 def index():
-    print("22222")
     return render_template('admin/mybase.html')
 
 
 from apps.web.forms import *
-from apps.model import User
-from apps import db , user_datastore
+from apps import user_datastore
 from apps.model import *
 
 
@@ -78,6 +101,23 @@ def register():
         role = user_datastore.find_role("user")
         user = user_datastore.create_user(name=username , email=email , password=password , customerID=customerID)
         user_datastore.add_role_to_user(user , role)
+
+        a = Authority(
+            userId=customerID ,
+            customerDetail=False ,
+            customerManage=False ,
+            lessonDetail=False ,
+            lessonManage=False ,
+            coachDetail=False ,
+            coachManage=False ,
+            cardDetail=False ,
+            cardManage=False ,
+            leaveManage=False ,
+            userAdd=False ,
+            userEdit=False ,
+            userDelete=False
+        )
+        db.session.add(a)
         db.session.commit()
         return redirect('/login')
 
@@ -106,8 +146,8 @@ def notify():
 @web.route("/profile" , methods=['GET'])
 def profile():
     from apps.model import Customer
-    userid = current_user.id
-    customer = Customer.query.filter_by(id=userid).first()
+    customerID = current_user.customerID
+    customer = Customer.query.filter_by(id=customerID).first()
     name = customer.name
     sex = customer.sex
     hcondition = customer.hcondition
@@ -244,7 +284,7 @@ def profileAction(action):
 @web.route("/advanced/lesson" , methods=['GET' , 'POST'])
 def advancedLesson():
     if request.method == "GET":
-        return render_template('/other/lesson.html' , m="" , lessonList=[])
+        return render_template('/other/lesson.html' , ls=getl() , cs=getc() , m="" , lessonList=[])
     else:
         betime = request.form.get("betime").split(" - ")
         start = datetime.datetime.strptime(betime[0] , "%m/%d/%Y")
@@ -259,7 +299,7 @@ def advancedLesson():
             LessonDict["lessonRoom"] = i.room
             LessonDict["lessonPrice"] = i.cost
             LessonList.append(LessonDict)
-        return render_template('/other/lesson.html' , m="" , lessonList=LessonList)
+        return render_template('/other/lesson.html' , ls=getl() , cs=getc() , m="" , lessonList=LessonList)
 
 
 @web.route("/advanced/consuming" , methods=['GET' , 'POST'])
@@ -280,3 +320,59 @@ def advancedConsuming():
             ConsumingDict["goodsid"] = i.goodsid
             ConsumingList.append(ConsumingDict)
         return render_template('/other/consuming.html' , m="" , lessonList=ConsumingList)
+
+
+@web.route("/authority" , methods=['POST' , 'GET'])
+def authority():
+    form = authorityForm()
+    print(form.query.data)
+    if form.validate_on_submit():
+        roleName = form.roleName.data
+        query = form.query.data
+        modify = form.modify.data
+        if query == True:
+            a = Authority.query.filter_by(roleName=roleName).first()
+            form.c1.data = a.customerDetail
+            form.c2.data = a.customerManage
+            form.c3.data = a.lessonDetail
+            form.c4.data = a.lessonManage
+            form.c5.data = a.coachDetail
+            form.c6.data = a.coachManage
+            form.c7.data = a.cardDetail
+            form.c8.data = a.cardManage
+            form.c9.data = a.leaveManage
+            form.c10.data = a.userAdd
+            form.c11.data = a.userEdit
+            form.c12.data = a.userDelete
+        else:
+
+            c1 = form.c1.data
+            c2 = form.c2.data
+            c3 = form.c3.data
+            c4 = form.c4.data
+            c5 = form.c5.data
+            c6 = form.c6.data
+            c7 = form.c7.data
+            c8 = form.c8.data
+            c9 = form.c9.data
+            c10 = form.c10.data
+            c11 = form.c11.data
+            c12 = form.c12.data
+
+            Authority.query.filter_by(roleName=roleName).update({
+                "customerDetail": c1 ,
+                "customerManage": c2 ,
+                "lessonDetail": c3 ,
+                "lessonManage": c4 ,
+                "coachDetail": c5 ,
+                "coachManage": c6 ,
+                "cardDetail": c7 ,
+                "cardManage": c8 ,
+                "leaveManage": c9 ,
+                "userAdd": c10 ,
+                "userEdit": c11 ,
+                "userDelete": c12
+            })
+            db.session.commit()
+
+    return render_template('/other/authoityManage.html' , form=form)
